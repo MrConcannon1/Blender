@@ -98,7 +98,7 @@
 
 <div id="game-container" class="terminal-container rounded-lg overflow-hidden">
     <div class="terminal-header flex justify-between items-center text-sm">
-        <span class="font-bold">[[ SYSTEM_ACCESS: BLENDER FUNDAMENTALS QUIZ ]]</span>
+        <span class="font-bold">[[ SYSTEM_ACCESS: BLENDER SHORTCUT QUIZ ]]</span>
         <span id="score-display" class="glow-text text-lg">SCORE: 0</span>
     </div>
 
@@ -116,7 +116,7 @@
             <h2 id="recap-title" class="text-xl font-bold text-yellow-300 mb-2"></h2>
             <p id="recap-content" class="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed"></p>
             <button id="start-level-btn" onclick="startLevel()" class="mt-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition-colors">
-                Start Level <i class="fas fa-play ml-2"></i>
+                Start Quiz <i class="fas fa-play ml-2"></i>
             </button>
         </div>
 
@@ -142,7 +142,7 @@
         <div id="game-over-area" class="text-center p-8 hidden">
             <h2 class="text-4xl font-extrabold text-green-400 glow-text mb-4">BLENDER QUIZ COMPLETE</h2>
             <p class="text-xl mb-6">Final Score: <span id="final-score" class="font-bold text-yellow-300"></span></p>
-            <p class="text-gray-400">You have successfully tested your knowledge of Blender basics.</p>
+            <p class="text-gray-400">You have successfully tested your knowledge of Blender basics and shortcuts.</p>
             <p class="text-gray-500 text-sm mt-4">System shutting down...</p>
         </div>
     </div>
@@ -162,181 +162,184 @@
 
 <script>
     // --------------------------------------------------------------------------------
-    // 1. DYNAMIC CONTENT & ATTAINMENT FOCUS
+    // 1. DYNAMIC CONTENT & ATTAINMENT FOCUS (Blender Shortcuts Focus)
     // --------------------------------------------------------------------------------
     const LESSON_DATA = [
-        // --- LEVEL 1: BLENDER BASICS (Interface, Navigation, Core Concepts) ---
+        // --- LEVEL 1: NAVIGATION & VIEW (Essential Keys) ---
         {
             level: 1,
-            title: "Module 1: Interface & Navigation",
-            recap: `OBJECTIVES:
-1. Understand the default Blender interface (Viewport, Outliner, Properties).
-2. Learn essential navigation controls (Zoom, Pan, Orbit).
-3. Identify the difference between Object and Edit Modes.
+            title: "Level 1: Navigation & View Shortcuts",
+            recap: `FOCUS: Essential keyboard shortcuts for navigating the 3D Viewport and switching between modeling modes.
 
-Key Concepts:
-- The 3D Cursor dictates where new objects are spawned.
-- The default scene contains a Cube, a Light, and a Camera.`,
+Key Shortcuts to Master:
+- View control (Orbit, Pan, Zoom)
+- Mode switching (Object vs. Edit)
+- Adding new geometry.`,
             questions: [
                 {
                     id: "B1Q1",
                     attainment: "Low",
                     mpa: 100,
                     type: "MCQ",
-                    prompt: "What are the three default objects in a new Blender scene?",
-                    code: "// Starting a new scene...",
+                    prompt: "Which key is the universal shortcut to switch between Object Mode and Edit Mode?",
+                    code: "// Switching to modify vertices/faces...",
                     options: [
-                        { text: "Cube, Sun, Plane", isCorrect: false },
-                        { text: "Cube, Light, Camera", isCorrect: true },
-                        { text: "Sphere, Area Light, Camera", isCorrect: false },
-                        { text: "Suzanne, Point Light, Camera", isCorrect: false }
+                        { text: "E (Extrude)", isCorrect: false },
+                        { text: "Tab", isCorrect: true },
+                        { text: "A (Select All)", isCorrect: false },
+                        { text: "Z (Shading Pie Menu)", isCorrect: false }
                     ],
-                    feedback_incorrect: "The defaults are a basic mesh (Cube), a source of illumination (Light), and a viewpoint (Camera).",
-                    mini_lesson: "Mini-Lesson: The default setup provides the minimum needed for a basic render."
+                    feedback_incorrect: "The 'Tab' key is the quickest way to toggle between Object Mode (manipulating whole objects) and Edit Mode (manipulating mesh components).",
+                    mini_lesson: "Mini-Lesson: Use 'Tab' before starting any detailed modeling work."
                 },
                 {
                     id: "B1Q2",
                     attainment: "Medium",
                     mpa: 150,
-                    type: "MCQ",
-                    prompt: "Which key switches between Object Mode and Edit Mode?",
-                    code: "// Switching between modes for modeling...",
-                    options: [
-                        { text: "G", isCorrect: false },
-                        { text: "E", isCorrect: false },
-                        { text: "Tab", isCorrect: true },
-                        { text: "Shift + Tab", isCorrect: false }
-                    ],
-                    feedback_incorrect: "The 'Tab' key is the quickest way to switch between Object (whole object) and Edit (vertices/faces) modes.",
-                    mini_lesson: "Mini-Lesson: 'Tab' is essential for starting the actual editing process."
+                    type: "CODE_INPUT",
+                    prompt: "Enter the single key shortcut used to activate the **Grab/Move** transformation tool.",
+                    code: "// I need to reposition the selected object...",
+                    answer: "G",
+                    feedback_incorrect: "The shortcut is 'G', short for Grab.",
+                    mini_lesson: "Mini-Lesson: G (Grab), R (Rotate), S (Scale) are the core transformation keys."
                 },
                 {
                     id: "B1Q3",
-                    attainment: "Medium",
-                    mpa: 150,
-                    type: "CODE_INPUT",
-                    prompt: "Enter the single key shortcut used to quickly **search for a command** (like 'Subdivision Surface' or 'Render')",
-                    code: "// Need to find a command without using the menus...",
-                    answer: "F3",
-                    feedback_incorrect: "It's the function key used for search across most of Blender's menus.",
-                    mini_lesson: "Mini-Lesson: Pressing 'F3' opens the search menu, a huge time saver."
-                },
-                {
-                    id: "B1Q4",
                     attainment: "High",
                     mpa: 200,
                     type: "MCQ",
-                    prompt: "In the 3D Viewport, what does the middle mouse button (MMB) primarily control?",
-                    code: "// Navigating the 3D scene...",
+                    prompt: "Which key combination opens the **Add Menu** (Mesh, Light, Camera) to insert new objects?",
+                    code: "// Adding a new cylinder to the scene...",
                     options: [
-                        { text: "Panning (Shift + MMB)", isCorrect: false },
-                        { text: "Zooming (Scroll Wheel)", isCorrect: false },
-                        { text: "Orbiting/Rotating the view", isCorrect: true },
-                        { text: "Activating the 'Move' tool (G)", isCorrect: false }
+                        { text: "Ctrl + A", isCorrect: false },
+                        { text: "Shift + A", isCorrect: true },
+                        { text: "Alt + A", isCorrect: false },
+                        { text: "Ctrl + S", isCorrect: false }
                     ],
-                    feedback_incorrect: "Holding MMB allows you to rotate the camera around the point of interest (orbit).",
-                    mini_lesson: "Mini-Lesson: MMB is for Orbit. Shift + MMB is for Pan."
+                    feedback_incorrect: "Shift + A opens the 'Add' menu, the primary way to insert geometry and lights.",
+                    mini_lesson: "Mini-Lesson: Shift + A (Add) is one of the most essential shortcuts."
+                },
+                {
+                    id: "B1Q4",
+                    attainment: "Medium",
+                    mpa: 150,
+                    type: "CODE_INPUT",
+                    prompt: "Enter the single key shortcut that activates the **Shading Pie Menu** (Wireframe, Material Preview, Rendered).",
+                    code: "// Quickly checking materials and shadows...",
+                    answer: "Z",
+                    feedback_incorrect: "The key is 'Z', which brings up the quick shading mode selection.",
+                    mini_lesson: "Mini-Lesson: Pressing 'Z' is essential for quickly checking materials and lighting while modeling."
                 }
             ]
         },
         
-        // --- LEVEL 2: TRANSFORMATIONS (Move, Rotate, Scale) ---
+        // --- LEVEL 2: TRANSFORMATIONS (G, R, S and Axis Locking) ---
         {
             level: 2,
-            title: "Module 2: Transformations & Selections",
-            recap: `OBJECTIVES:
-1. Master the three primary transformation shortcuts.
-2. Understand axis locking (X, Y, Z).
-3. Practice selection techniques.
+            title: "Level 2: Transformation & Axis Locking",
+            recap: `FOCUS: Utilizing G, R, and S combined with axis keys (X, Y, Z) to achieve precise transformations.
 
 Key Concepts:
-- G, R, S are the core transformation tools.
-- Pressing G, R, or S followed by X, Y, or Z locks the movement to that axis.`,
+- Pressing a transformation key twice uses local/global coordinates.
+- Axis locking restricts movement to a single axis.`,
             questions: [
                 {
                     id: "B2Q1",
                     attainment: "Low",
                     mpa: 100,
-                    type: "MCQ",
-                    prompt: "Which shortcut key is used to activate the **Scale** transformation tool?",
-                    code: "// Resizing a mesh...",
-                    options: [
-                        { text: "R", isCorrect: false },
-                        { text: "S", isCorrect: true },
-                        { text: "T", isCorrect: false },
-                        { text: "M", isCorrect: false }
-                    ],
-                    feedback_incorrect: "'S' for Scale, 'R' for Rotate, 'G' for Grab (Move).",
-                    mini_lesson: "Mini-Lesson: Remember the first letter: S-cale."
+                    type: "CODE_INPUT",
+                    prompt: "Which key activates the **Rotate** transformation tool?",
+                    code: "// Spinning the object on its axis...",
+                    answer: "R",
+                    feedback_incorrect: "The shortcut is 'R', for Rotate.",
+                    mini_lesson: "Mini-Lesson: G (Grab), R (Rotate), S (Scale)."
                 },
                 {
                     id: "B2Q2",
                     attainment: "Medium",
                     mpa: 150,
                     type: "DRAG_DROP_ORDER",
-                    prompt: "Order the key sequence to **Move an object 2 units along the Y-axis**.",
+                    prompt: "Order the key sequence to **Rotate the selected object only around the Z-axis**.",
                     code: "// The sequence of keys pressed...",
-                    answer_order: ["dd2_grab", "dd2_y_axis", "dd2_value"],
+                    answer_order: ["dd2_rotate", "dd2_z_axis"],
                     items: [
-                        { id: "dd2_grab", text: "G (Grab/Move)" },
-                        { id: "dd2_value", text: "2 (Value)" },
-                        { id: "dd2_y_axis", text: "Y (Axis Lock)" }
+                        { id: "dd2_rotate", text: "R (Rotate)" },
+                        { id: "dd2_z_axis", text: "Z (Axis Lock)" }
                     ],
-                    feedback_incorrect: "Sequence: Tool (G) -> Axis (Y) -> Value (2).",
-                    mini_lesson: "Mini-Lesson: Pressing a tool shortcut starts the action; pressing X/Y/Z locks it."
+                    feedback_incorrect: "Sequence: Tool (R) -> Axis (Z).",
+                    mini_lesson: "Mini-Lesson: Tool + Axis locks the action to that coordinate."
                 },
                 {
                     id: "B2Q3",
+                    attainment: "Medium",
+                    mpa: 150,
+                    type: "MCQ",
+                    prompt: "What is the primary function of the **A** key in Object Mode?",
+                    code: "// Selecting multiple objects...",
+                    options: [
+                        { text: "Deselects all or Selects all", isCorrect: true },
+                        { text: "Activates the Annotation tool", isCorrect: false },
+                        { text: "Toggles the Transform Gizmo", isCorrect: false },
+                        { text: "Opens the Animation Editor", isCorrect: false }
+                    ],
+                    feedback_incorrect: "The 'A' key is used to quickly select everything or deselect everything.",
+                    mini_lesson: "Mini-Lesson: Hit 'A' once to select all, hit it again to deselect all."
+                },
+                {
+                    id: "B2Q4",
                     attainment: "High",
                     mpa: 200,
-                    type: "MCQ",
-                    prompt: "Which key is used to **add a new mesh** (e.g., a UV Sphere) to the scene?",
-                    code: "// Adding a new primitive...",
-                    options: [
-                        { text: "A", isCorrect: false },
-                        { text: "Spacebar", isCorrect: false },
-                        { text: "Shift + A", isCorrect: true },
-                        { text: "Ctrl + A", isCorrect: false }
-                    ],
-                    feedback_incorrect: "Shift + A opens the 'Add' menu. 'A' selects all/none.",
-                    mini_lesson: "Mini-Lesson: Shift + A (Add) is the primary way to insert objects."
+                    type: "CODE_INPUT",
+                    prompt: "After pressing G, R, or S, what effect does pressing the **Middle Mouse Button (MMB)** have?",
+                    code: "// Cancelling a transformation...",
+                    answer: "Cancel the transformation",
+                    feedback_incorrect: "Pressing MMB or Esc cancels the current transformation, reverting the object to its previous state.",
+                    mini_lesson: "Mini-Lesson: MMB is a quick alternative to the Esc key for cancelling actions."
                 }
             ]
         },
 
-        // --- LEVEL 3: MODES & RENDERING ---
+        // --- LEVEL 3: MODELING & WORKFLOW (Advanced Keys) ---
         {
             level: 3,
-            title: "Module 3: Advanced Basics & Rendering",
-            recap: `OBJECTIVES:
-1. Understand the functions of different Shading Modes.
-2. Learn the shortcut for initiating a render.
-3. Identify the key concept of the 3D Cursor.
+            title: "Level 3: Modeling & Workflow Keys",
+            recap: `FOCUS: Essential keys for modeling tasks, rendering, and scene management.
 
 Key Concepts:
-- The 'Z' key is used for the pie menu containing Shading Modes.
-- F12 is the universal shortcut for rendering.`,
+- The 'E' key is fundamental for extrusion.
+- Ctrl + R and Shift + D are powerful modeling/duplication tools.`,
             questions: [
                 {
                     id: "B3Q1",
                     attainment: "Low",
                     mpa: 100,
                     type: "MCQ",
-                    prompt: "Which shortcut key is typically used to perform the final **render** of an image?",
-                    code: "// Generating the final image...",
+                    prompt: "What is the key shortcut used to perform the **Extrude** operation in Edit Mode?",
+                    code: "// Pulling a face out...",
                     options: [
-                        { text: "R", isCorrect: false },
-                        { text: "P", isCorrect: false },
-                        { text: "F12", isCorrect: true },
-                        { text: "Ctrl + S", isCorrect: false }
+                        { text: "I (Insert Faces)", isCorrect: false },
+                        { text: "E", isCorrect: true },
+                        { text: "F (Make Face)", isCorrect: false },
+                        { text: "G (Grab)", isCorrect: false }
                     ],
-                    feedback_incorrect: "F12 is the standard function key for rendering.",
-                    mini_lesson: "Mini-Lesson: F12 initiates the render, generating the final image."
+                    feedback_incorrect: "'E' is the core shortcut for Extrude.",
+                    mini_lesson: "Mini-Lesson: 'E'xtrude is the most common modeling action."
                 },
                 {
                     id: "B3Q2",
                     attainment: "Medium",
                     mpa: 150,
+                    type: "CODE_INPUT",
+                    prompt: "Which key combination is used to **Duplicate** an object or selection (creating a new one without leaving the Move tool)?",
+                    code: "// Creating an exact copy...",
+                    answer: "Shift + D",
+                    feedback_incorrect: "The shortcut is 'Shift + D' (Duplicate).",
+                    mini_lesson: "Mini-Lesson: Shift + D is the quick way to create copies; Alt + D creates linked copies."
+                },
+                {
+                    id: "B3Q3",
+                    attainment: "High",
+                    mpa: 200,
                     type: "DRAG_DROP_ORDER",
                     prompt: "Order the process to **Delete** the currently selected object.",
                     code: "// Removing an unnecessary object...",
@@ -345,19 +348,8 @@ Key Concepts:
                         { id: "dd3_delete_key", text: "X (The Delete key in Blender)" },
                         { id: "dd3_confirm", text: "Click 'Delete' to confirm" }
                     ],
-                    feedback_incorrect: "Press 'X' (the shortcut for delete), then confirm the action.",
-                    mini_lesson: "Mini-Lesson: Unlike many programs, 'X' is the primary delete key in Blender."
-                },
-                {
-                    id: "B3Q3",
-                    attainment: "High",
-                    mpa: 200,
-                    type: "CODE_INPUT",
-                    prompt: "What is the key shortcut used to access the **Shading Pie Menu** (Wireframe, Material Preview, Rendered)?",
-                    code: "// Changing the viewport display mode...",
-                    answer: "Z",
-                    feedback_incorrect: "The key is 'Z', which quickly brings up the shading options.",
-                    mini_lesson: "Mini-Lesson: 'Z' is essential for quickly checking materials and lighting while modeling."
+                    feedback_incorrect: "Sequence: Press 'X' (the shortcut for delete), then confirm the action.",
+                    mini_lesson: "Mini-Lesson: Unlike many programs, 'X' is the primary delete key in Blender, not the Delete key itself."
                 }
             ]
         }
@@ -678,18 +670,26 @@ Key Concepts:
         }
         else if (q.type === "CODE_INPUT") {
             // Normalize input: trim, lowercase, remove spaces/symbols, allowing for variations like "shift+a" or "shift a"
-            const normalizedInput = input.toLowerCase().replace(/[^a-z0-9+]/g, '');
-            const normalizedAnswer = q.answer.toLowerCase().replace(/[^a-z0-9+]/g, '');
-            
-            // Allow for variations on compound keys like "Shift+A"
+            let normalizedInput = input.toLowerCase().replace(/[^a-z0-9+]/g, '');
+            let normalizedAnswer = q.answer.toLowerCase().replace(/[^a-z0-9+]/g, '');
+
+            // Special handling for multi-key shortcuts (like Shift + D)
             if (normalizedAnswer.includes('+')) {
+                // Handle answers like "Shift D" -> "shiftd" and "Shift + D" -> "shift+d"
                 const answerParts = normalizedAnswer.split('+').sort().join('');
                 const inputParts = normalizedInput.split('+').sort().join('');
+
+                // Check if the input contains the exact, normalized answer, OR if the sorted, cleaned parts match
+                if (normalizedInput.includes(normalizedAnswer) || inputParts === answerParts.replace('+', '')) {
+                     return true;
+                }
                 
-                // If the user entered "shift a" it becomes "shifta". If answer is "Shift + A" it becomes "shift+a" -> "shifta"
-                return inputParts === answerParts.replace('+', '') || normalizedInput.includes(normalizedAnswer);
+                // Final check to handle simple single-key answers that might be phrased as 'Code Input'
+                if (normalizedInput === normalizedAnswer) return true;
+
             }
             
+            // For single-key answers (G, R, Z, etc.)
             return normalizedInput === normalizedAnswer.replace(/\s/g, '');
         }
         else if (q.type === "DRAG_DROP_ORDER") {
