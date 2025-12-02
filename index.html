@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blender Fundamentals: Basics & Shortcuts</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Custom styles for the terminal theme */
+        :root {
+            --terminal-bg: #1e1e1e;
+            --terminal-text: #00ff00;
+            --terminal-accent: #00cc00;
+            --terminal-error: #ff5555;
+            --terminal-info: #55aaff;
+        }
+
+        body {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background-color: #0d0d0d;
+            color: var(--terminal-text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .terminal-container {
+            width: 100%;
+            max-width: 900px;
+            background-color: var(--terminal-bg);
+            box-shadow: 0 0 20px var(--terminal-accent);
+            border: 2px solid var(--terminal-accent);
+        }
+
+        .terminal-header {
+            background-color: #000;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-bottom: 2px solid var(--terminal-accent);
+        }
+
+        .code-input {
+            background-color: #2c2c2c;
+            color: var(--terminal-text);
+            border: 1px solid var(--terminal-accent);
+            transition: all 0.2s;
+        }
+
+        .code-input:focus {
+            outline: none;
+            box-shadow: 0 0 5px var(--terminal-accent);
+        }
+
+        .draggable-item {
+            cursor: grab;
+            border: 1px solid var(--terminal-accent);
+            background-color: #333;
+            color: var(--terminal-text);
+            transition: all 0.2s;
+        }
+
+        .draggable-item:active {
+            cursor: grabbing;
+            box-shadow: 0 0 10px var(--terminal-text);
+        }
+
+        .drop-target {
+            min-height: 48px;
+            border: 2px dashed var(--terminal-accent);
+            background-color: #222;
+        }
+
+        .correct {
+            border-color: #00cc00 !important;
+            box-shadow: 0 0 10px #00cc00;
+        }
+        .incorrect {
+            border-color: var(--terminal-error) !important;
+            box-shadow: 0 0 10px var(--terminal-error);
+        }
+
+        /* Utility for glowing text/borders */
+        .glow-text {
+            text-shadow: 0 0 5px var(--terminal-text);
+        }
+        .glow-border {
+            box-shadow: 0 0 8px var(--terminal-accent);
+        }
+        
+    </style>
+</head>
+<body>
+
+<div id="game-container" class="terminal-container rounded-lg overflow-hidden">
+    <div class="terminal-header flex justify-between items-center text-sm">
+        <span class="font-bold">[[ SYSTEM_ACCESS: BLENDER FUNDAMENTALS QUIZ ]]</span>
+        <span id="score-display" class="glow-text text-lg">SCORE: 0</span>
+    </div>
+
+    <div class="p-6 space-y-6">
+        <!-- Progress Bar & Indicator -->
+        <div class="flex items-center text-xs">
+            <div id="progress-bar-container" class="flex-grow h-2 bg-gray-700 rounded-full mr-4">
+                <div id="progress-bar" class="h-2 bg-green-500 rounded-full transition-all duration-500"></div>
+            </div>
+            <span id="progress-text" class="text-green-400">Loading Module...</span>
+        </div>
+
+        <!-- Lesson Introduction/Recap Area -->
+        <div id="recap-section" class="bg-gray-800 p-4 rounded-lg border-l-4 border-yellow-500 hidden">
+            <h2 id="recap-title" class="text-xl font-bold text-yellow-300 mb-2"></h2>
+            <p id="recap-content" class="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed"></p>
+            <button id="start-level-btn" onclick="startLevel()" class="mt-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition-colors">
+                Start Level <i class="fas fa-play ml-2"></i>
+            </button>
+        </div>
+
+        <!-- Question Area -->
+        <div id="question-area" class="space-y-4 hidden">
+            <div class="flex justify-between items-start border-b border-gray-700 pb-2">
+                <h3 id="question-title" class="text-xl font-bold text-green-400"></h3>
+                <span id="attainment-tag" class="text-xs font-semibold px-2 py-1 rounded-full border border-gray-600"></span>
+            </div>
+            
+            <pre id="question-code-snippet" class="bg-black p-4 rounded-lg overflow-x-auto text-sm text-yellow-300"></pre>
+            
+            <div id="task-renderer" class="bg-gray-900 p-4 rounded-lg min-h-[150px]">
+                <!-- Task-specific content renders here (MCQ, Code Input, Drag/Drop) -->
+            </div>
+
+            <button id="submit-btn" onclick="handleSubmit()" class="w-full px-6 py-3 bg-cyan-700 text-white rounded-md hover:bg-cyan-600 transition-colors font-bold glow-border">
+                [SUBMIT SOLUTION]
+            </button>
+        </div>
+        
+        <!-- Game Over Message -->
+        <div id="game-over-area" class="text-center p-8 hidden">
+            <h2 class="text-4xl font-extrabold text-green-400 glow-text mb-4">BLENDER QUIZ COMPLETE</h2>
+            <p class="text-xl mb-6">Final Score: <span id="final-score" class="font-bold text-yellow-300"></span></p>
+            <p class="text-gray-400">You have successfully tested your knowledge of Blender basics.</p>
+            <p class="text-gray-500 text-sm mt-4">System shutting down...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Feedback/Error Messages -->
+<div id="feedback-modal" class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center hidden">
+    <div class="bg-gray-800 p-6 rounded-lg max-w-md w-full border-2" id="modal-content-card">
+        <h3 id="modal-title" class="text-2xl font-bold mb-3"></h3>
+        <p id="modal-message" class="mb-4 text-sm whitespace-pre-wrap"></p>
+        <p id="modal-mini-lesson" class="text-xs italic p-3 bg-gray-900 rounded-md mb-4 text-green-300 border-l-4 border-green-500 hidden"></p>
+        <button id="modal-close-btn" onclick="closeModal()" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition-colors font-semibold">
+            <span id="modal-btn-text">Proceed</span> <i class="fas fa-arrow-right ml-2"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+    // --------------------------------------------------------------------------------
+    // 1. DYNAMIC CONTENT & ATTAINMENT FOCUS
+    // --------------------------------------------------------------------------------
+    const LESSON_DATA = [
+        // --- LEVEL 1: BLENDER BASICS (Interface, Navigation, Core Concepts) ---
+        {
+            level: 1,
+            title: "Module 1: Interface & Navigation",
+            recap: `OBJECTIVES:
+1. Understand the default Blender interface (Viewport, Outliner, Properties).
+2. Learn essential navigation controls (Zoom, Pan, Orbit).
+3. Identify the difference between Object and Edit Modes.
+
+Key Concepts:
+- The 3D Cursor dictates where new objects are spawned.
+- The default scene contains a Cube, a Light, and a Camera.`,
+            questions: [
+                {
+                    id: "B1Q1",
+                    attainment: "Low",
+                    mpa: 100,
+                    type: "MCQ",
+                    prompt: "What are the three default objects in a new Blender scene?",
+                    code: "// Starting a new scene...",
+                    options: [
+                        { text: "Cube, Sun, Plane", isCorrect: false },
+                        { text: "Cube, Light, Camera", isCorrect: true },
+                        { text: "Sphere, Area Light, Camera", isCorrect: false },
+                        { text: "Suzanne, Point Light, Camera", isCorrect: false }
+                    ],
+                    feedback_incorrect: "The defaults are a basic mesh (Cube), a source of illumination (Light), and a viewpoint (Camera).",
+                    mini_lesson: "Mini-Lesson: The default setup provides the minimum needed for a basic render."
+                },
+                {
+                    id: "B1Q2",
+                    attainment: "Medium",
+                    mpa: 150,
+                    type: "MCQ",
+                    prompt: "Which key switches between Object Mode and Edit Mode?",
+                    code: "// Switching between modes for modeling...",
+                    options: [
+                        { text: "G", isCorrect: false },
+                        { text: "E", isCorrect: false },
+                        { text: "Tab", isCorrect: true },
+                        { text: "Shift + Tab", isCorrect: false }
+                    ],
+                    feedback_incorrect: "The 'Tab' key is the quickest way to switch between Object (whole object) and Edit (vertices/faces) modes.",
+                    mini_lesson: "Mini-Lesson: 'Tab' is essential for starting the actual editing process."
+                },
+                {
+                    id: "B1Q3",
+                    attainment: "Medium",
+                    mpa: 150,
+                    type: "CODE_INPUT",
+                    prompt: "Enter the single key shortcut used to quickly **search for a command** (like 'Subdivision Surface' or 'Render')",
+                    code: "// Need to find a command without using the menus...",
+                    answer: "F3",
+                    feedback_incorrect: "It's the function key used for search across most of Blender's menus.",
+                    mini_lesson: "Mini-Lesson: Pressing 'F3' opens the search menu, a huge time saver."
+                },
+                {
+                    id: "B1Q4",
+                    attainment: "High",
+                    mpa: 200,
+                    type: "MCQ",
+                    prompt: "In the 3D Viewport, what does the middle mouse button (MMB) primarily control?",
+                    code: "// Navigating the 3D scene...",
+                    options: [
+                        { text: "Panning (Shift + MMB)", isCorrect: false },
+                        { text: "Zooming (Scroll Wheel)", isCorrect: false },
+                        { text: "Orbiting/Rotating the view", isCorrect: true },
+                        { text: "Activating the 'Move' tool (G)", isCorrect: false }
+                    ],
+                    feedback_incorrect: "Holding MMB allows you to rotate the camera around the point of interest (orbit).",
+                    mini_lesson: "Mini-Lesson: MMB is for Orbit. Shift + MMB is for Pan."
+                }
+            ]
+        },
+        
+        // --- LEVEL 2: TRANSFORMATIONS (Move, Rotate, Scale) ---
+        {
+            level: 2,
+            title: "Module 2: Transformations & Selections",
+            recap: `OBJECTIVES:
+1. Master the three primary transformation shortcuts.
+2. Understand axis locking (X, Y, Z).
+3. Practice selection techniques.
+
+Key Concepts:
+- G, R, S are the core transformation tools.
+- Pressing G, R, or S followed by X, Y, or Z locks the movement to that axis.`,
+            questions: [
+                {
+                    id: "B2Q1",
+                    attainment: "Low",
+                    mpa: 100,
+                    type: "MCQ",
+                    prompt: "Which shortcut key is used to activate the **Scale** transformation tool?",
+                    code: "// Resizing a mesh...",
+                    options: [
+                        { text: "R", isCorrect: false },
+                        { text: "S", isCorrect: true },
+                        { text: "T", isCorrect: false },
+                        { text: "M", isCorrect: false }
+                    ],
+                    feedback_incorrect: "'S' for Scale, 'R' for Rotate, 'G' for Grab (Move).",
+                    mini_lesson: "Mini-Lesson: Remember the first letter: S-cale."
+                },
+                {
+                    id: "B2Q2",
+                    attainment: "Medium",
+                    mpa: 150,
+                    type: "DRAG_DROP_ORDER",
+                    prompt: "Order the key sequence to **Move an object 2 units along the Y-axis**.",
+                    code: "// The sequence of keys pressed...",
+                    answer_order: ["dd2_grab", "dd2_y_axis", "dd2_value"],
+                    items: [
+                        { id: "dd2_grab", text: "G (Grab/Move)" },
+                        { id: "dd2_value", text: "2 (Value)" },
+                        { id: "dd2_y_axis", text: "Y (Axis Lock)" }
+                    ],
+                    feedback_incorrect: "Sequence: Tool (G) -> Axis (Y) -> Value (2).",
+                    mini_lesson: "Mini-Lesson: Pressing a tool shortcut starts the action; pressing X/Y/Z locks it."
+                },
+                {
+                    id: "B2Q3",
+                    attainment: "High",
+                    mpa: 200,
+                    type: "MCQ",
+                    prompt: "Which key is used to **add a new mesh** (e.g., a UV Sphere) to the scene?",
+                    code: "// Adding a new primitive...",
+                    options: [
+                        { text: "A", isCorrect: false },
+                        { text: "Spacebar", isCorrect: false },
+                        { text: "Shift + A", isCorrect: true },
+                        { text: "Ctrl + A", isCorrect: false }
+                    ],
+                    feedback_incorrect: "Shift + A opens the 'Add' menu. 'A' selects all/none.",
+                    mini_lesson: "Mini-Lesson: Shift + A (Add) is the primary way to insert objects."
+                }
+            ]
+        },
+
+        // --- LEVEL 3: MODES & RENDERING ---
+        {
+            level: 3,
+            title: "Module 3: Advanced Basics & Rendering",
+            recap: `OBJECTIVES:
+1. Understand the functions of different Shading Modes.
+2. Learn the shortcut for initiating a render.
+3. Identify the key concept of the 3D Cursor.
+
+Key Concepts:
+- The 'Z' key is used for the pie menu containing Shading Modes.
+- F12 is the universal shortcut for rendering.`,
+            questions: [
+                {
+                    id: "B3Q1",
+                    attainment: "Low",
+                    mpa: 100,
+                    type: "MCQ",
+                    prompt: "Which shortcut key is typically used to perform the final **render** of an image?",
+                    code: "// Generating the final image...",
+                    options: [
+                        { text: "R", isCorrect: false },
+                        { text: "P", isCorrect: false },
+                        { text: "F12", isCorrect: true },
+                        { text: "Ctrl + S", isCorrect: false }
+                    ],
+                    feedback_incorrect: "F12 is the standard function key for rendering.",
+                    mini_lesson: "Mini-Lesson: F12 initiates the render, generating the final image."
+                },
+                {
+                    id: "B3Q2",
+                    attainment: "Medium",
+                    mpa: 150,
+                    type: "DRAG_DROP_ORDER",
+                    prompt: "Order the process to **Delete** the currently selected object.",
+                    code: "// Removing an unnecessary object...",
+                    answer_order: ["dd3_delete_key", "dd3_confirm"],
+                    items: [
+                        { id: "dd3_delete_key", text: "X (The Delete key in Blender)" },
+                        { id: "dd3_confirm", text: "Click 'Delete' to confirm" }
+                    ],
+                    feedback_incorrect: "Press 'X' (the shortcut for delete), then confirm the action.",
+                    mini_lesson: "Mini-Lesson: Unlike many programs, 'X' is the primary delete key in Blender."
+                },
+                {
+                    id: "B3Q3",
+                    attainment: "High",
+                    mpa: 200,
+                    type: "CODE_INPUT",
+                    prompt: "What is the key shortcut used to access the **Shading Pie Menu** (Wireframe, Material Preview, Rendered)?",
+                    code: "// Changing the viewport display mode...",
+                    answer: "Z",
+                    feedback_incorrect: "The key is 'Z', which quickly brings up the shading options.",
+                    mini_lesson: "Mini-Lesson: 'Z' is essential for quickly checking materials and lighting while modeling."
+                }
+            ]
+        }
+    ];
+
+    // --------------------------------------------------------------------------------
+    // 2. GLOBAL STATE
+    // --------------------------------------------------------------------------------
+    let currentLevelIndex = 0;
+    let currentQuestionIndex = -1; 
+    let totalScore = 0;
+    let currentQuestion = null;
+    let currentMPA = 0; 
+    let attempts = 0; 
+
+    // --------------------------------------------------------------------------------
+    // 3. CORE UI ELEMENTS
+    // --------------------------------------------------------------------------------
+    const els = {
+        scoreDisplay: document.getElementById('score-display'),
+        progressBar: document.getElementById('progress-bar'),
+        progressText: document.getElementById('progress-text'),
+        recapSection: document.getElementById('recap-section'),
+        recapTitle: document.getElementById('recap-title'),
+        recapContent: document.getElementById('recap-content'),
+        questionArea: document.getElementById('question-area'),
+        questionTitle: document.getElementById('question-title'),
+        attainmentTag: document.getElementById('attainment-tag'),
+        questionCodeSnippet: document.getElementById('question-code-snippet'),
+        taskRenderer: document.getElementById('task-renderer'),
+        submitBtn: document.getElementById('submit-btn'),
+        feedbackModal: document.getElementById('feedback-modal'),
+        modalTitle: document.getElementById('modal-title'),
+        modalMessage: document.getElementById('modal-message'),
+        modalCard: document.getElementById('modal-content-card'),
+        modalMiniLesson: document.getElementById('modal-mini-lesson'),
+        modalBtnText: document.getElementById('modal-btn-text'),
+        modalCloseBtn: document.getElementById('modal-close-btn'), 
+        gameOverArea: document.getElementById('game-over-area'),
+        finalScore: document.getElementById('final-score')
+    };
+
+    // --------------------------------------------------------------------------------
+    // 4. NAVIGATION & LIFE CYCLE
+    // --------------------------------------------------------------------------------
+
+    function initializeGame() {
+        currentLevelIndex = 0;
+        totalScore = 0;
+        updateScoreDisplay();
+        showRecapScreen();
+    }
+
+    function showRecapScreen() {
+        const levelData = LESSON_DATA[currentLevelIndex];
+        if (!levelData) {
+            return showGameOverScreen();
+        }
+
+        els.questionArea.classList.add('hidden');
+        els.recapSection.classList.remove('hidden');
+
+        els.recapTitle.textContent = levelData.title;
+        els.recapContent.textContent = levelData.recap.trim();
+        
+        currentQuestionIndex = -1;
+        updateProgressDisplay();
+    }
+
+    function startLevel() {
+        els.recapSection.classList.add('hidden');
+        currentQuestionIndex = 0;
+        loadQuestion(currentQuestionIndex);
+    }
+
+    function loadQuestion(index) {
+        const levelData = LESSON_DATA[currentLevelIndex];
+        if (!levelData || index >= levelData.questions.length) {
+            currentLevelIndex++;
+            return showRecapScreen();
+        }
+
+        currentQuestion = levelData.questions[index];
+        currentMPA = currentQuestion.mpa;
+        attempts = 0;
+        currentQuestionIndex = index;
+        
+        // UI updates
+        els.questionArea.classList.remove('hidden');
+        els.questionTitle.textContent = `Q${index + 1}. ${currentQuestion.prompt}`;
+        els.attainmentTag.textContent = currentQuestion.attainment.toUpperCase();
+        els.attainmentTag.className = 'text-xs font-semibold px-2 py-1 rounded-full border border-gray-600';
+        
+        if (currentQuestion.attainment === 'Low') {
+            els.attainmentTag.classList.add('text-green-300', 'border-green-700');
+        } else if (currentQuestion.attainment === 'Medium') {
+            els.attainmentTag.classList.add('text-yellow-300', 'border-yellow-700');
+        } else if (currentQuestion.attainment === 'High') {
+            els.attainmentTag.classList.add('text-red-300', 'border-red-700');
+        }
+
+        els.questionCodeSnippet.textContent = currentQuestion.code.trim();
+        els.submitBtn.disabled = false;
+        els.submitBtn.textContent = '[SUBMIT SOLUTION]';
+
+        renderTask(currentQuestion);
+        updateProgressDisplay();
+    }
+
+    function showGameOverScreen() {
+        els.questionArea.classList.add('hidden');
+        els.recapSection.classList.add('hidden');
+        els.gameOverArea.classList.remove('hidden');
+        els.finalScore.textContent = totalScore;
+    }
+
+    function updateScoreDisplay() {
+        els.scoreDisplay.textContent = `SCORE: ${totalScore}`;
+    }
+
+    function updateProgressDisplay() {
+        const levelData = LESSON_DATA[currentLevelIndex];
+        if (!levelData) return;
+
+        const totalQs = levelData.questions.length;
+        const completedQs = currentQuestionIndex > -1 ? currentQuestionIndex : 0;
+        
+        els.progressText.textContent = `${levelData.title}: ${completedQs}/${totalQs} Completed`;
+        
+        const progressPercentage = (completedQs / totalQs) * 100;
+        els.progressBar.style.width = `${progressPercentage}%`;
+    }
+
+    function applyPenalty() {
+        const penaltyAmount = currentQuestion.mpa * 0.25; 
+        const oldMPA = currentMPA;
+        currentMPA -= penaltyAmount;
+        currentMPA = Math.max(0, currentMPA); 
+
+        const msg = `
+        [[ ALERT: INCORRECT ATTEMPT ]]
+        Penalty Applied: ${Math.round(penaltyAmount)} pts deducted from Max Potential Award.
+        MPA reduced from ${oldMPA} to ${currentMPA}.
+        `;
+        showModal("Execution Error", msg, 'error');
+    }
+
+    function awardAndProceed(isCorrect) {
+        const scoreAwarded = isCorrect ? Math.round(currentMPA) : 0;
+        totalScore += scoreAwarded;
+        updateScoreDisplay();
+
+        let title, message, type, miniLesson = '';
+
+        if (isCorrect) {
+            title = "[[ SUCCESS: ANSWER ACCEPTED ]]";
+            type = 'success';
+            message = `
+            Solution validated.
+            Score Awarded: +${scoreAwarded} points.
+            `;
+            if (currentQuestion.type === 'CODE_INPUT') {
+                message += `\nCorrect Shortcut:\n${currentQuestion.answer}`;
+            }
+            if (currentQuestion.type === 'DRAG_DROP_ORDER') {
+                const solutionText = currentQuestion.answer_order.map(id => {
+                    return currentQuestion.items.find(item => item.id === id).text;
+                }).join(' -> ');
+                message += `\nCorrect Sequence:\n${solutionText}`;
+            }
+
+        } else {
+            title = "[[ FAILED: NO POINTS AWARDED ]]";
+            type = 'error';
+            message = `
+            The attempt was incorrect.
+            Score Awarded: 0 points.
+            `;
+            message += `\nReason: ${currentQuestion.feedback_incorrect}`;
+            miniLesson = currentQuestion.mini_lesson;
+        }
+
+        showModal(title, message, type, miniLesson);
+
+        document.getElementById('modal-close-btn').onclick = () => {
+            closeModal();
+            loadQuestion(currentQuestionIndex + 1);
+        };
+    }
+
+    // --------------------------------------------------------------------------------
+    // 6. TASK RENDERING & VALIDATION
+    // --------------------------------------------------------------------------------
+
+    function renderTask(q) {
+        els.taskRenderer.innerHTML = '';
+        const id = q.id;
+
+        if (q.type === "MCQ") {
+            q.options.forEach((option, i) => {
+                const button = document.createElement('button');
+                button.className = `mcq-option w-full text-left p-3 my-2 rounded-md hover:bg-gray-700 transition-colors border border-gray-600`;
+                button.setAttribute('data-index', i);
+                button.textContent = option.text;
+                button.onclick = () => {
+                    document.querySelectorAll('.mcq-option').forEach(btn => btn.classList.remove('bg-gray-600', 'border-cyan-500'));
+                    button.classList.add('bg-gray-600', 'border-cyan-500');
+                };
+                els.taskRenderer.appendChild(button);
+            });
+        }
+        else if (q.type === "CODE_INPUT") {
+            const textarea = document.createElement('textarea');
+            textarea.id = `${id}-input`;
+            textarea.className = 'code-input w-full h-32 p-3 text-sm rounded-md resize-none';
+            textarea.placeholder = '# Enter the key or key combination here (e.g., F3 or Shift + A)...';
+            els.taskRenderer.appendChild(textarea);
+        }
+        else if (q.type === "DRAG_DROP_ORDER") {
+            const sourceContainer = document.createElement('div');
+            sourceContainer.id = `${id}-source`;
+            sourceContainer.className = 'flex flex-wrap gap-3 p-3 bg-gray-700 rounded-md';
+            
+            const targetContainer = document.createElement('div');
+            targetContainer.id = `${id}-target`;
+            targetContainer.className = 'space-y-2 mt-4';
+
+            const shuffledItems = shuffleArray([...q.items]);
+
+            shuffledItems.forEach(item => {
+                const dragItem = document.createElement('div');
+                dragItem.id = item.id;
+                dragItem.className = 'draggable-item p-3 rounded-md shadow-lg';
+                dragItem.textContent = item.text;
+                dragItem.draggable = true;
+                dragItem.addEventListener('dragstart', handleDragStart);
+                sourceContainer.appendChild(dragItem);
+            });
+
+            for (let i = 0; i < q.items.length; i++) {
+                const target = document.createElement('div');
+                target.className = 'drop-target p-2 rounded-md border-2 border-dashed border-gray-600 flex items-center';
+                target.setAttribute('data-order', i);
+                target.innerHTML = `<span class="mr-3 font-bold text-gray-500">${i + 1}.</span>`;
+                target.addEventListener('dragover', handleDragOver);
+                target.addEventListener('drop', handleDrop);
+                targetContainer.appendChild(target);
+            }
+
+            els.taskRenderer.appendChild(sourceContainer);
+            els.taskRenderer.appendChild(targetContainer);
+        }
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function handleSubmit() {
+        if (attempts > 0) return; 
+
+        const input = getTaskInput(currentQuestion);
+
+        if (input.isEmpty) {
+            return showModal("Input Required", "[[ WARNING: NO INPUT PROVIDED ]]\nPlease enter your answer or make a selection before submitting.", 'info');
+        }
+
+        attempts++;
+        
+        let isCorrect = false;
+        try {
+            isCorrect = validateAnswer(currentQuestion, input.value);
+        } catch (e) {
+            console.error("Validation Error:", e);
+            isCorrect = false;
+        }
+
+        if (isCorrect) {
+            awardAndProceed(true);
+        } else {
+            applyPenalty();
+            awardAndProceed(false);
+        }
+    }
+
+    function getTaskInput(q) {
+        const id = q.id;
+        
+        if (q.type === "MCQ") {
+            const selectedBtn = document.querySelector('.mcq-option.bg-gray-600');
+            const index = selectedBtn ? parseInt(selectedBtn.getAttribute('data-index')) : null;
+            return { isEmpty: index === null, value: index };
+        }
+        else if (q.type === "CODE_INPUT") {
+            const textarea = document.getElementById(`${id}-input`);
+            const value = textarea ? textarea.value.trim() : '';
+            return { isEmpty: value === '', value: value };
+        }
+        else if (q.type === "DRAG_DROP_ORDER") {
+            const targetContainer = document.getElementById(`${id}-target`);
+            const droppedItems = Array.from(targetContainer.children)
+                .map(target => target.querySelector('.draggable-item')?.id)
+                .filter(id => id); 
+            
+            return { isEmpty: droppedItems.length !== q.items.length, value: droppedItems };
+        }
+
+        return { isEmpty: true, value: null };
+    }
+
+    function validateAnswer(q, input) {
+        if (q.type === "MCQ") {
+            return q.options[input].isCorrect;
+        }
+        else if (q.type === "CODE_INPUT") {
+            // Normalize input: trim, lowercase, remove spaces/symbols, allowing for variations like "shift+a" or "shift a"
+            const normalizedInput = input.toLowerCase().replace(/[^a-z0-9+]/g, '');
+            const normalizedAnswer = q.answer.toLowerCase().replace(/[^a-z0-9+]/g, '');
+            
+            // Allow for variations on compound keys like "Shift+A"
+            if (normalizedAnswer.includes('+')) {
+                const answerParts = normalizedAnswer.split('+').sort().join('');
+                const inputParts = normalizedInput.split('+').sort().join('');
+                
+                // If the user entered "shift a" it becomes "shifta". If answer is "Shift + A" it becomes "shift+a" -> "shifta"
+                return inputParts === answerParts.replace('+', '') || normalizedInput.includes(normalizedAnswer);
+            }
+            
+            return normalizedInput === normalizedAnswer.replace(/\s/g, '');
+        }
+        else if (q.type === "DRAG_DROP_ORDER") {
+            if (!Array.isArray(input) || input.length !== q.answer_order.length) return false;
+            return input.every((id, i) => id === q.answer_order[i]);
+        }
+        
+        return false;
+    }
+
+    // --------------------------------------------------------------------------------
+    // 7. DRAG AND DROP HANDLERS
+    // --------------------------------------------------------------------------------
+    let draggedItem = null;
+
+    function handleDragStart(e) {
+        draggedItem = e.target;
+        e.dataTransfer.setData('text/plain', e.target.id);
+        setTimeout(() => e.target.classList.add('opacity-50'), 0);
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault(); 
+        e.target.closest('.drop-target').classList.add('bg-gray-600');
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        const target = e.target.closest('.drop-target');
+        const data = e.dataTransfer.getData('text/plain');
+        const item = document.getElementById(data);
+        
+        if (target && item) {
+            const existingItem = target.querySelector('.draggable-item');
+            if (existingItem) {
+                document.getElementById(`${currentQuestion.id}-source`).appendChild(existingItem);
+                existingItem.classList.remove('opacity-50');
+            }
+            target.appendChild(item);
+            item.classList.remove('opacity-50');
+        }
+        target.classList.remove('bg-gray-600');
+    }
+
+    // --------------------------------------------------------------------------------
+    // 8. MODAL/FEEDBACK SYSTEM
+    // --------------------------------------------------------------------------------
+
+    function showModal(title, message, type = 'info', miniLesson = '') {
+        els.modalTitle.textContent = title;
+        els.modalMessage.textContent = message;
+        els.modalMiniLesson.textContent = miniLesson;
+        
+        els.modalCard.className = 'bg-gray-800 p-6 rounded-lg max-w-md w-full border-2';
+        els.modalCloseBtn.className = 'w-full px-4 py-2 text-white rounded-md transition-colors font-semibold';
+        els.modalMiniLesson.classList.add('hidden');
+        els.modalMiniLesson.classList.remove('border-red-500', 'border-green-500');
+
+        if (type === 'success') {
+            els.modalCard.classList.add('border-green-500', 'glow-border');
+            els.modalCloseBtn.classList.add('bg-green-600', 'hover:bg-green-500');
+            els.modalBtnText.textContent = 'Next Challenge'; 
+        } else if (type === 'error') {
+            els.modalCard.classList.add('border-red-500', 'glow-border');
+            els.modalCloseBtn.classList.add('bg-red-600', 'hover:bg-red-500');
+            els.modalBtnText.textContent = 'Next Challenge'; 
+            if (miniLesson) {
+                els.modalMiniLesson.classList.remove('hidden');
+                els.modalMiniLesson.classList.add('border-red-500', 'text-red-300');
+            }
+        } else { 
+            els.modalCard.classList.add('border-cyan-500');
+            els.modalCloseBtn.classList.add('bg-cyan-600', 'hover:bg-cyan-500');
+            els.modalBtnText.textContent = 'Acknowledge';
+            document.getElementById('modal-close-btn').onclick = closeModal;
+        }
+
+        els.feedbackModal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+        els.feedbackModal.classList.add('hidden');
+    }
+
+    window.onload = initializeGame;
+
+</script>
+</body>
+</html>
